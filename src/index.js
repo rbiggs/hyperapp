@@ -1,8 +1,5 @@
-var h = require("./h")
+import h from "./h"
+import app from "./app"
+import router from "./router"
 
-module.exports = {
-    router: require("./router"),
-    html: require("hyperx")(h),
-    app: require("./app"),
-    h: h
-}
+export { h, app, router }

@@ -1,14 +1,13 @@
-module.exports = function (options) {
-    var view = options.view
-    var render = options.render
+export default function (render, options) {
+    var routes = options.view
 
     function setLocation(data) {
-        render(route(view, data))
+        render(match(routes, data))
         history.pushState({}, "", data)
     }
 
     window.addEventListener("popstate", function () {
-        render(route(view, location.pathname))
+        render(match(routes, location.pathname))
     })
 
     window.addEventListener("click", function (e) {
@@ -25,20 +24,20 @@ module.exports = function (options) {
         if (target && target.host === location.host
             && !target.hasAttribute("data-no-routing")) {
 
-            var element = target.hash === "" ? element : document.querySelector(target.hash)
+            var element = document.querySelector(target.hash === "" ? element : target.hash)
+
             if (element) {
                 element.scrollIntoView(true)
-
             } else {
-                setLocation(target.pathname)
                 e.preventDefault()
+                setLocation(target.pathname)
             }
         }
     })
 
-    render(route(view, location.pathname))
+    render(match(routes, location.pathname))
 
-    function route(routes, path) {
+    function match(routes, path) {
         for (var route in routes) {
             var re = regexify(route), params = {}, match
 
@@ -49,7 +48,7 @@ module.exports = function (options) {
 
                 match = function (model, actions) {
                     actions.setLocation = setLocation
-                    return routes[route](model, actions, params, setLocation)
+                    return routes[route](model, actions, params)
                 }
             })
 
@@ -58,7 +57,7 @@ module.exports = function (options) {
             }
         }
 
-        return views["/"]
+        return routes["/"]
     }
 
     function regexify(path) {
@@ -72,4 +71,3 @@ module.exports = function (options) {
         return { re: re, keys: keys }
     }
 }
-

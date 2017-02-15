@@ -1,4 +1,4 @@
-module.exports = function (options) {
+export default function (options) {
 	var model = options.model
 	var view = options.view
 
@@ -47,11 +47,9 @@ module.exports = function (options) {
 			render(model, view)
 		}
 
-		router(merge(options, {
-			render: function (newView) {
-				render(model, view = newView ? newView : view, node)
-			}
-		}))
+		router(function (newView) {
+			render(model, view = newView ? newView : view, node)
+		}, options)
 
 		for (var key in subs) {
 			subs[key](model, actions, hooks.onError)
@@ -183,18 +181,16 @@ module.exports = function (options) {
 				index--
 			}
 
-			if (index >= 0) {
-				var element = parent.childNodes[index]
+			var element = parent.childNodes[index]
 
-				if (oldNode && oldNode.data) {
-					var hook = oldNode.data.onremove
-					if (hook) {
-						defer(hook, element)
-					}
+			if (oldNode && oldNode.data) {
+				var hook = oldNode.data.onremove
+				if (hook) {
+					defer(hook, element)
 				}
-
-				parent.removeChild(element)
 			}
+
+			parent.removeChild(element)
 
 		} else if (shouldUpdate(node, oldNode)) {
 			parent.replaceChild(createElementFrom(node), parent.childNodes[index])
